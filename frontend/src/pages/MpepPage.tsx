@@ -117,7 +117,6 @@ export function MpepPage({ onTriggerAI }: MpepPageProps) {
     <div 
       className="p-8 overflow-y-auto h-full" 
       onMouseUp={handleMouseUp}
-      onMouseDown={hidePopup}
     >
       <article className="prose lg:prose-xl max-w-none">
         <ReactMarkdown>

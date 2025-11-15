@@ -1,24 +1,32 @@
 /*
 * REPLACE THIS FILE
 * File: peptalk/frontend/src/index.css
-*
-* We must ensure the Tailwind layers are imported correctly, 
-* or the typography plugin will be omitted.
 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* The rest of the custom styles */
+/* --- New Font Imports (Geist Mono for code) --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* --- Global Styles Overrides --- */
 body {
+  /* Retain Inter as the main body font */
   font-family: 'Inter', sans-serif;
-  /* Use a slightly darker background to clearly define the white panels */
-  background-color: #f1f5f9; /* slate-100 */ 
-  color: #1e293b; /* slate-800 */
+  /* Use a slightly darker background for contrast */
+  background-color: #f1f5f9; 
+  color: #1e293b; 
   overflow-y: hidden;
 }
 
-/* Custom scrollbar and animation styles */
+/* Apply Geist Mono font to code blocks via Prose override */
+.prose code,
+.prose pre {
+  font-family: 'Geist Mono', monospace !important;
+}
+
+/* Custom scrollbar and animation styles (kept for modern feel) */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

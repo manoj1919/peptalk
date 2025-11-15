@@ -26,63 +26,101 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 text-slate-900 overflow-hidden">
+    // Outer Container (Full screen)
+    <div className="flex h-screen bg-gray-mint-50 text-gray-mint-900 overflow-hidden">
       
-      {/* Column 1: Sidebar (Polished, bg-white for clear definition) */}
-      <nav className="w-64 shrink-0 bg-white border-r border-slate-200 p-4 overflow-y-auto">
-        <h2 className="font-bold text-lg mb-4 text-blue-600">PEP-talk</h2>
-        <ul className="space-y-2">
-          {/* REAL LINKS using React Router Link */}
-          <li className="font-semibold text-slate-700 hover:text-blue-600">
-            <Link to="/mpep/2141">MPEP 2141</Link>
-          </li>
-          <li className="font-semibold text-slate-700 hover:text-blue-600">
-            <Link to="/mpep/2142">MPEP 2142</Link>
-          </li>
-          <li className="font-semibold text-slate-700 hover:text-blue-600">
-            <Link to="/mpep/2143">MPEP 2143</Link>
-          </li>
-          <li className="font-semibold text-slate-700 hover:text-blue-600">
-            <Link to="/mpep/2144">MPEP 2144</Link>
-          </li>
-          <li className="font-semibold text-slate-700 hover:text-blue-600">
-            <Link to="/mpep/2145">MPEP 2145</Link>
-          </li>
-        </ul>
-      </nav>
-
-      {/* Column 2: Main Content (The primary reading area) */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden relative bg-white shadow-lg">
-        <Routes>
-          <Route path="/mpep/:sectionId" element={<MpepPage onTriggerAI={handleAITrigger} />} />
-          <Route path="/" element={<Navigate to="/mpep/2141" replace />} />
-        </Routes>
-      </main>
-
-      {/* Column 3: Contextual Panel (AI Companion) */}
-      <aside 
-        className={`bg-white flex flex-col h-screen border-l border-slate-200 shadow-lg transition-all duration-300 ease-in-out ${
-          isAiPanelOpen ? 'w-96' : 'w-0'
-        }`}
-      >
-        <div className="flex-shrink-0 p-4 border-b border-slate-200 flex justify-between items-center">
-            <h3 className="font-semibold text-lg text-blue-600">AI Study Companion</h3>
-            <button 
-              onClick={() => setIsAiPanelOpen(false)} 
-              className="text-slate-400 hover:text-slate-800"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+      {/* --- Fixed Header (Simulating Mintlify's top bar) --- */}
+      <div className="fixed top-0 w-full h-14 bg-white border-b border-gray-mint-200 z-30">
+        <div className="flex items-center h-full px-4">
+          <h2 className="font-bold text-lg text-primary-mint">PEP-talk</h2>
         </div>
-        {isAiPanelOpen && (
-          <ChatInterface 
-            initialPrompt={chatPrompt}
-            isPanelOpen={isAiPanelOpen}
-          />
-        )}
-      </aside>
+      </div>
+      
+      {/* --- Main Layout Wrapper (Pads content away from the fixed header) --- */}
+      <div className="flex-1 mt-14 p-4 lg:p-3">
+        
+        {/* --- Rounded Content Container (The large rounded box holding the layout) --- */}
+        <div 
+          className="flex h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-4.5rem)] rounded-2xl border border-gray-mint-200/70 shadow-lg overflow-hidden"
+        >
+          {/* Column 1: Sidebar (Fixed width w-16.5, matching inspiration) */}
+          <nav className="w-16.5 shrink-0 bg-white border-r border-gray-mint-200/70 p-2 overflow-y-auto">
+            
+            {/* Search Bar Placeholder matching the inspiration design */}
+            <div className="flex items-center justify-center p-2">
+              <button 
+                type="button" 
+                className="flex rounded-xl w-full items-center text-sm leading-6 h-9 pl-3.5 pr-3 text-gray-mint-700 bg-gray-mint-50 ring-1 ring-gray-mint-200 justify-between truncate gap-2"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-mint-700">🔍</span>
+                  <div className="truncate">Search...</div>
+                </div>
+                <span className="flex-none text-xs font-semibold">⌘K</span>
+              </button>
+            </div>
+
+            <ul className="space-y-px p-2 pt-4">
+              {/* Active Link Example (Mimics Mintlify's filled/rounded active link) */}
+              <li className="relative">
+                <Link 
+                  to="/mpep/2141" 
+                  className="group flex items-center pr-3 py-1.5 cursor-pointer gap-x-3 text-left rounded-xl w-full outline-offset-[-1px] bg-primary-mint/10 text-primary-mint [text-shadow:-0.2px_0_0_currentColor,0.2px_0_0_currentColor] font-medium"
+                >
+                  MPEP 2141
+                </Link>
+              </li>
+              {/* Inactive Links (Mimics Mintlify's rounded hover/inactive state) */}
+              <li className="relative">
+                <Link to="/mpep/2142" className="group flex items-center pr-3 py-1.5 cursor-pointer gap-x-3 text-left rounded-xl w-full outline-offset-[-1px] hover:bg-gray-mint-100/50 text-gray-mint-700 hover:text-gray-mint-900">MPEP 2142</Link>
+              </li>
+              <li className="relative">
+                <Link to="/mpep/2143" className="group flex items-center pr-3 py-1.5 cursor-pointer gap-x-3 text-left rounded-xl w-full outline-offset-[-1px] hover:bg-gray-mint-100/50 text-gray-mint-700 hover:text-gray-mint-900">MPEP 2143</Link>
+              </li>
+              <li className="relative">
+                <Link to="/mpep/2144" className="group flex items-center pr-3 py-1.5 cursor-pointer gap-x-3 text-left rounded-xl w-full outline-offset-[-1px] hover:bg-gray-mint-100/50 text-gray-mint-700 hover:text-gray-mint-900">MPEP 2144</Link>
+              </li>
+              <li className="relative">
+                <Link to="/mpep/2145" className="group flex items-center pr-3 py-1.5 cursor-pointer gap-x-3 text-left rounded-xl w-full outline-offset-[-1px] hover:bg-gray-mint-100/50 text-gray-mint-700 hover:text-gray-mint-900">MPEP 2145</Link>
+              </li>
+            </ul>
+          </nav>
+
+          {/* Column 2: Main Content (The core reading area) */}
+          <main className="flex-1 flex flex-col overflow-hidden relative bg-background-light-mint">
+            <Routes>
+              <Route path="/mpep/:sectionId" element={<MpepPage onTriggerAI={handleAITrigger} />} />
+              <Route path="/" element={<Navigate to="/mpep/2141" replace />} />
+            </Routes>
+          </main>
+
+          {/* Column 3: Contextual Panel (AI Companion) */}
+          <aside 
+            className={`flex flex-col h-full border-l border-gray-mint-200/70 shadow-lg transition-all duration-300 ease-in-out ${
+              isAiPanelOpen ? 'w-96' : 'w-0'
+            } bg-background-light-mint`}
+          >
+            {/* Header/Close Button */}
+            <div className="flex-shrink-0 p-4 border-b border-gray-mint-200/70 flex justify-between items-center">
+                <h3 className="font-semibold text-lg text-primary-mint">AI Study Companion</h3>
+                <button 
+                  onClick={() => setIsAiPanelOpen(false)} 
+                  className="text-gray-mint-400 hover:text-gray-mint-800"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+            </div>
+            {isAiPanelOpen && (
+              <ChatInterface 
+                initialPrompt={chatPrompt}
+                isPanelOpen={isAiPanelOpen}
+              />
+            )}
+          </aside>
+        </div>
+      </div>
       
     </div>
   );
