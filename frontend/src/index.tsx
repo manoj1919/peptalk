@@ -1,0 +1,22 @@
+//
+// REPLACE THIS FILE
+// File: peptalk/frontend/src/index.tsx
+//
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+// --- NEW IMPORT ---
+import { BrowserRouter } from 'react-router-dom';
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+root.render(
+  <React.StrictMode>
+    {/* --- WRAP APP IN ROUTER --- */}
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);

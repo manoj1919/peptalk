@@ -1,0 +1,11 @@
+#
+# ADD THIS NEW FILE
+# File: peptalk/.gitignore
+#
+# Ignore language-specific ignores in subfolders
+# We will let the sub-projects handle their own ignores
+/backend/.gitignore
+/frontend/.gitignore
+
+# Docker
+docker-compose.yaml

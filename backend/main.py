@@ -1,6 +1,6 @@
 #
-# ADD THIS NEW FILE
-# File: peptalk/main.py
+# REPLACE THIS FILE
+# File: peptalk/backend/main.py
 #
 
 import asyncio
@@ -10,6 +10,8 @@ from pydantic import BaseModel
 import uvicorn
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+
+# (No more CORS imports)
 
 # Import the logic from your existing bot_core
 from src.peptalk.bot_core import (
@@ -25,9 +27,6 @@ class ChatRequest(BaseModel):
     question: str
 
 # --- Global Bot State ---
-
-# This dictionary will hold our loaded RAG chain.
-# We use a dict so it can be modified by the lifespan event.
 bot_state = {}
 
 # --- Lifespan Event Handler (Startup/Shutdown) ---
@@ -40,22 +39,18 @@ async def lifespan(app: FastAPI):
     """
     print("--- Server Startup: Loading RAG Bot ---")
     try:
-        # Load all the components, just like bot_core.py's main()
         api_key = get_api_key()
         retriever, llm = initialize_components(api_key)
         rag_chain = create_rag_chain(retriever, llm)
-        
-        # Store the chain in our global state
         bot_state["rag_chain"] = rag_chain
         print("--- RAG Bot Loaded Successfully. Server is Ready. ---")
     except Exception as e:
         print(f"!!! CRITICAL STARTUP ERROR: {e} !!!")
         print("!!! Server will start, but /chat/stream will fail. !!!")
-        bot_state["rag_chain"] = None # Set to None so we can check
+        bot_state["rag_chain"] = None
     
     yield
     
-    # --- Shutdown ---
     print("--- Server Shutdown ---")
     bot_state.clear()
 
@@ -68,27 +63,29 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# (CORS Middleware section is REMOVED)
+
 # --- API Endpoints ---
 
 @app.get("/")
 def get_root():
-    return {"message": "PEP-talk API is running. Post to /chat/stream to interact."}
+    return {"message": "PEP-talk API is running. Post to /api/chat/stream to interact."}
 
 async def stream_rag_response(rag_chain, question: str) -> AsyncGenerator[str, None]:
     """
     Asynchronously streams the RAG chain's response.
     """
-    # astream() is the async version of stream()
     try:
         async for chunk in rag_chain.astream(question):
             yield chunk
-            # Add a tiny sleep to allow other requests to be processed
             await asyncio.sleep(0) 
     except Exception as e:
         print(f"Error during RAG stream: {e}")
         yield f"\n\nSERVER_ERROR: An error occurred while processing your request: {e}"
 
-@app.post("/chat/stream")
+# --- IMPORTANT URL CHANGE ---
+# The URL is now /api/chat/stream to work with the frontend's proxy.
+@app.post("/api/chat/stream")
 async def post_chat_stream(request: ChatRequest) -> StreamingResponse:
     """
     Receives a user's question and streams back the RAG bot's response.
@@ -110,15 +107,10 @@ async def post_chat_stream(request: ChatRequest) -> StreamingResponse:
     )
 
 if __name__ == "__main__":
-    """
-    This allows you to run the server directly for development.
-    However, you should use the `uvicorn` command for production
-    or when running with Doppler.
-    """
-    print("--- Starting Uvicorn server for development (use `doppler run` for proper env) ---")
+    print("--- Starting Uvicorn server for development ---")
     uvicorn.run(
         "main:app", 
-        host="0.0.0.0",  # Listen on all network interfaces
+        host="0.0.0.0",
         port=8000, 
-        reload=True      # Reloads server on code changes
+        reload=True
     )
