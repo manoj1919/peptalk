@@ -3,6 +3,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import html_to_markdown
 
 MPEP_URLS = [
     'https://www.uspto.gov/web/offices/pac/mpep/s2141.html',
@@ -31,12 +32,14 @@ def scrape_mpep_sections(urls: list, output_file: str) -> bool:
             content_div = soup.find('div', id='article')
             
             if content_div:
-                raw_text = content_div.get_text(separator=' ')
-                clean_text = re.sub(r'\s+', ' ', raw_text).strip()
-                clean_text = re.sub(r'(\n\s*){2,}', '\n\n', clean_text)
-                
-                all_text += f"\n\n--- START OF SECTION {url.split('/')[-1]} ---\n\n"
-                all_text += clean_text
+                # Convert the raw HTML of the article to Markdown
+                # This preserves headings, lists, bolding, etc.
+                html_content = str(content_div)
+                markdown_text = html_to_markdown.convert(html_content)
+
+                # Add a clear separator for our splitter
+                all_text += f"\n\n# START OF SECTION {url.split('/')[-1]}\n\n"
+                all_text += markdown_text
                 print(f"Successfully scraped {url}")
             else:
                 # This warning will fire if the ID changes again
@@ -48,7 +51,7 @@ def scrape_mpep_sections(urls: list, output_file: str) -> bool:
 
     try:
         # Note: We're saving this to the 'data/' folder
-        output_path = f'data/{output_file}'
+        output_path = f'data/mpep_2141-2145.md'
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(all_text)
         print(f"\nScraping complete! Data saved to {output_path}")
@@ -59,4 +62,4 @@ def scrape_mpep_sections(urls: list, output_file: str) -> bool:
 
 if __name__ == "__main__":
     # We'll run the function to save the file
-    scrape_mpep_sections(MPEP_URLS, 'mpep_2141-2145.txt')
+    scrape_mpep_sections(MPEP_URLS, 'mpep_2141-2145.md')

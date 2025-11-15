@@ -1,4 +1,7 @@
-# src/peptalk/bot_core.py
+#
+# REPLACE THIS FILE
+# File: peptalk/src/peptalk/bot_core.py
+#
 
 import os
 import sys
@@ -44,7 +47,10 @@ def initialize_components(api_key: str):
     if not os.path.exists(PERSIST_DIRECTORY):
         print(f"Error: Directory not found at {PERSIST_DIRECTORY}")
         print("Please run vector_store.py first to create the database.")
-        sys.exit(1)
+        #
+        # --- THIS IS THE CRITICAL CHANGE ---
+        # sys.exit(1) would kill the web server. Raising an exception is correct.
+        raise FileNotFoundError(f"Vector store not found at {PERSIST_DIRECTORY}")
         
     db = Chroma(
         persist_directory=PERSIST_DIRECTORY, 
@@ -58,8 +64,6 @@ def initialize_components(api_key: str):
     # 3. Initialize the Chat Model (Gemini 2.5 Flash)
     print("Initializing Chat Model (Gemini 2.5 Flash)...")
     
-    # --- THIS IS THE UPDATED LINE ---
-    # We are now using the latest 2.5 model, which my search confirmed.
     llm = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
         google_api_key=api_key
@@ -101,10 +105,10 @@ def create_rag_chain(retriever, llm):
 def main():
     """
     Main function to initialize and run the chat bot in a loop.
+    This function is for command-line use only.
     """
-    print("Starting PEP-talk Bot POC...")
+    print("Starting PEP-talk Bot POC (Command-Line Mode)...")
     try:
-        # We only need the one key!
         api_key = get_api_key()
         
         retriever, llm = initialize_components(api_key)
@@ -122,6 +126,7 @@ def main():
                 
             print("\nThinking...\n")
             try:
+                # Use .stream() for a streaming effect in the terminal
                 for chunk in rag_chain.stream(question):
                     print(chunk, end="", flush=True)
                 print("\n\n")
@@ -133,6 +138,6 @@ def main():
         print(f"\nAn error occurred during startup: {e}")
 
 if __name__ == "__main__":
-    # We run this as a module from the root directory
-    # doppler run --project docketrocket --config dev -- python -m src.peptalk.bot_core
+    # This allows you to still run the bot from the command line
+    # for testing, while also being importable for the API.
     main()

@@ -6,9 +6,10 @@ import shutil
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from src.peptalk.processing import load_text, chunk_text
+from langchain_text_splitters import MarkdownHeaderTextSplitter
 
 # --- Constants ---
-DATA_FILE_PATH = "data/mpep_2141-2145.txt" 
+DATA_FILE_PATH = "data/mpep_2141-2145.md"
 PERSIST_DIRECTORY = "data/chroma_db" 
 
 def get_api_key() -> str:
@@ -45,18 +46,17 @@ def initialize_embeddings(api_key: str) -> GoogleGenerativeAIEmbeddings:
     print("Google embedding model initialized.")
     return embeddings
 
-def create_and_store_embeddings(chunks: list[str], embeddings: GoogleGenerativeAIEmbeddings, persist_dir: str):
+def create_and_store_embeddings(documents: list, embeddings: GoogleGenerativeAIEmbeddings, persist_dir: str):
     """
-    Creates embeddings from text chunks and saves them to a Chroma vector store.
+    Creates embeddings from md documents and saves them to a Chroma vector store.
     """
-    if not chunks:
-        print("No chunks to process. Exiting.")
+    if not documents:
+        print("No documents to process. Exiting.")
         return
 
-    print(f"Creating vector store from {len(chunks)} chunks...")
-    
-    db = Chroma.from_texts(
-        texts=chunks, 
+    print(f"Creating vector store from {len(documents)} documents...")
+    db = Chroma.from_documents(
+        documents=documents,
         embedding=embeddings, 
         persist_directory=persist_dir
     )
@@ -74,8 +74,23 @@ def main():
         if not raw_text:
             print(f"No text found in {DATA_FILE_PATH}. Run data_ingestion.py first.")
             return
-            
-        chunks = chunk_text(raw_text)
+
+        print("Starting to split text by Markdown headers...")
+        # Define the headers we care about. '#' is a good top-level
+        # separator for our 'START OF SECTION' tags.
+        headers_to_split_on = [
+            ("#", "Section")
+        ]
+
+        # Initialize the splitter
+        markdown_splitter = MarkdownHeaderTextSplitter(
+            headers_to_split_on=headers_to_split_on, strip_headers=False
+        )
+
+        # Split the text. This creates a list of Document objects.
+        # Each document has 'page_content' and 'metadata'.
+        docs = markdown_splitter.split_text(raw_text)
+        print(f"Successfully split text into {len(docs)} documents.")
         
         embeddings = initialize_embeddings(api_key)
         
@@ -83,7 +98,7 @@ def main():
         if os.path.exists(PERSIST_DIRECTORY):
             shutil.rmtree(PERSIST_DIRECTORY)
         
-        create_and_store_embeddings(chunks, embeddings, PERSIST_DIRECTORY)
+        create_and_store_embeddings(docs, embeddings, PERSIST_DIRECTORY)
         
     except Exception as e:
         print(f"An error occurred in the main pipeline: {e}")
