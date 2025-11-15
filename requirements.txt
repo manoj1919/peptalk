@@ -1,0 +1,12 @@
+# For fetching web content
+requests
+
+# For parsing HTML
+beautifulsoup4
+
+# For chunking & AI logic
+langchain
+langchain-text-splitters
+
+# For running our tests
+pytest
